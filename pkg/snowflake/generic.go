@@ -64,6 +64,7 @@ type AlterPropertiesBuilder struct {
 	intProperties        map[string]int
 	floatProperties      map[string]float64
 	rawStatement         string
+	tags                 []TagValue
 }
 
 func (b *Builder) Alter() *AlterPropertiesBuilder {
@@ -104,6 +105,10 @@ func (ab *AlterPropertiesBuilder) SetRaw(rawStatement string) {
 	ab.rawStatement = sb.String()
 }
 
+func (b *AlterPropertiesBuilder) SetTags(tags []TagValue) {
+	b.tags = tags
+}
+
 func (ab *AlterPropertiesBuilder) Statement() string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf(`ALTER %s "%s" SET`, ab.entityType, ab.name)) // TODO handle error
@@ -130,6 +135,10 @@ func (ab *AlterPropertiesBuilder) Statement() string {
 		sb.WriteString(fmt.Sprintf(" %s=%.2f", strings.ToUpper(k), ab.floatProperties[k]))
 	}
 
+	for _, t := range sortTags(ab.tags) {
+		sb.WriteString(fmt.Sprintf(` TAG "%v"."%v"."%v" = "%v"`, t.Database, t.Schema, t.Name, t.Value))
+	}
+
 	return sb.String()
 }
 
@@ -142,6 +151,7 @@ type CreateBuilder struct {
 	intProperties        map[string]int
 	floatProperties      map[string]float64
 	rawStatement         string
+	tags                 []TagValue
 }
 
 func (b *Builder) Create() *CreateBuilder {
@@ -182,6 +192,10 @@ func (b *CreateBuilder) SetRaw(rawStatement string) {
 	b.rawStatement = sb.String()
 }
 
+func (b *CreateBuilder) SetTags(tags []TagValue) {
+	b.tags = tags
+}
+
 func (b *CreateBuilder) Statement() string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf(`CREATE %s "%s"`, b.entityType, b.name)) // TODO handle error
@@ -206,6 +220,15 @@ func (b *CreateBuilder) Statement() string {
 
 	for _, k := range sortStringsFloat(b.floatProperties) {
 		sb.WriteString(fmt.Sprintf(" %s=%.2f", strings.ToUpper(k), b.floatProperties[k]))
+	}
+
+	for i, t := range sortTags(b.tags) {
+		if i == 0 {
+			sb.WriteString(` TAG`)
+		} else if i < len(b.tags)-1 {
+			sb.WriteString(`, `)
+		}
+		sb.WriteString(fmt.Sprintf(`"%v"."%v"."%v" = "%v"`, t.Database, t.Schema, t.Name, t.Value))
 	}
 
 	return sb.String()

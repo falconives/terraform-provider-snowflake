@@ -43,6 +43,20 @@ resource "snowflake_database" "test2" {
 - **replication_accounts** (Set of String) A list of accounts to be added to the replication.
 - **replication_failover_accounts** (Set of String) A list of accounts to be added to the failover replication.
 - **replication_is_primary** (Boolean) When this is set to true, sets the database as primary for failover.
+- **tag** (Block List) Definitions of a tag to associate with the resource. (see [below for nested schema](#nestedblock--tag))
+
+<a id="nestedblock--tag"></a>
+### Nested Schema for `tag`
+
+Required:
+
+- **name** (String) Tag name, e.g. department.
+- **value** (String) Tag value, e.g. marketing_info.
+
+Optional:
+
+- **database** (String) Name of the database that the tag was created in.
+- **schema** (String) Name of the schema that the tag was created in.
 
 ## Import
 

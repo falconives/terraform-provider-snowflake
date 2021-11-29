@@ -69,6 +69,7 @@ var databaseSchema = map[string]*schema.Schema{
 		Description: "When this is set to true, sets the database as primary for failover.",
 		Default:     false,
 	},
+	"tag": tagReferenceSchema,
 }
 
 var databaseProperties = []string{"comment", "data_retention_time_in_days"}
